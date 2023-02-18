@@ -1,10 +1,10 @@
 // RUN: %clangxx -fsycl %s -o %t.out
 // RUN: env ONEAPI_DEVICE_SELECTOR=level_zero:gpu %t.out
 // RUN: env ONEAPI_DEVICE_SELECTOR=opencl:gpu %t.out
+// RUN: env ONEAPI_DEVICE_SELECTOR=ext_oneapi_cuda:gpu %t.out
+// RUN: env ONEAPI_DEVICE_SELECTOR=ext_oneapi_hip:gpu %t.out
 //
 // REQUIRES: gpu
-// UNSUPPORTED: cuda
-// UNSUPPORTED: hip
 // Temporarily disable on L0 due to fails in CI
 
 //==--------- intel-ext-device.cpp - SYCL device test ------------==//
@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
             std::cout << "OpenCL" << std::endl;
           } else if (plt.get_backend() == backend::ext_oneapi_cuda) {
             std::cout << "CUDA" << std::endl;
+          } else if (plt.get_backend() == backend::ext_oneapi_hip) {
+            std::cout << "HIP" << std::endl;
           } else {
             std::cout << "Unknown" << std::endl;
           }
@@ -121,6 +123,12 @@ int main(int argc, char **argv) {
                 std::cout << std::to_string(UUID[i]);
               }
               std::cout << "\n";
+            }
+            if (SYCL_EXT_INTEL_DEVICE_INFO >= 2 &&
+                dev.has(aspect::ext_intel_free_memory)) {
+              auto totalMem = dev.get_info<info::device::global_mem_size>();
+              auto freeMem = dev.get_info<ext::intel::info::device::free_memory>();
+              assert((totalMem >= freeMem) && "Expect total memory >= free memory");
             }
             if (SYCL_EXT_INTEL_DEVICE_INFO >= 5 &&
                 dev.has(aspect::ext_intel_device_id)) {
