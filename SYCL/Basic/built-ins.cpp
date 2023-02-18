@@ -8,9 +8,6 @@
 // RUN: %GPU_RUN_PLACEHOLDER %t_nonvar.out %GPU_CHECK_PLACEHOLDER
 // RUN: %ACC_RUN_PLACEHOLDER %t_nonvar.out %ACC_CHECK_PLACEHOLDER
 
-// CUDA does not support printf.
-// UNSUPPORTED: cuda
-//
 // Hits an assertion with AMD:
 // XFAIL: hip_amd
 
@@ -52,7 +49,7 @@ int main() {
    }).wait();
 
   s::ext::oneapi::experimental::printf(format, 321, 3.21f);
-  // CHECK: {{(Hello, World! 123 1.23)?}}
+  // CHECK: {{(Hello, World! 321 3.21)?}}
 
   // Test common
   {
@@ -67,8 +64,8 @@ int main() {
       });
     });
 
-    auto AccMin = BufMin.template get_access<s::access::mode::read>();
-    auto AccMax = BufMax.template get_access<s::access::mode::read>();
+    auto AccMin = BufMin.get_host_access(s::read_only);
+    auto AccMax = BufMax.get_host_access(s::read_only);
 
     assert(AccMin[0] == 0.5);
     assert(AccMax[0].x() == 2.3f && AccMax[0].y() == 2.5f);
