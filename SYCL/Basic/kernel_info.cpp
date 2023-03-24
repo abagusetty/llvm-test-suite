@@ -5,9 +5,6 @@
 //
 // Fail is flaky for level_zero, enable when fixed.
 // UNSUPPORTED: level_zero
-//
-// CUDA and HIP do not currently implement global_work_size
-// UNSUPPORTED: cuda, hip
 
 //==--- kernel_info.cpp - SYCL kernel info test ----------------------------==//
 //
